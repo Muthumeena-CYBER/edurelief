@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Sun, Moon, Heart, Menu, LogOut, LayoutDashboard } from 'lucide-react';
+import { Sun, Moon, Heart, LogOut, UserRound } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import logo from '../assets/logo.png';
@@ -36,6 +36,7 @@ const Navbar = () => {
     ];
 
     const navItems = user ? authNavItems : guestNavItems;
+    const roleLabel = user?.role === 'STUDENT' ? 'Student' : user?.role === 'DONOR' ? 'Donor' : 'Member';
 
     return (
         <nav className="glass sticky top-0 z-50 py-4 border-b border-slate-200 dark:border-slate-800 shadow-sm">
@@ -91,6 +92,20 @@ const Navbar = () => {
 
                     {user ? (
                         <div className="flex items-center gap-3">
+                            <div className="hidden md:flex items-center gap-3 px-3 py-2 rounded-xl bg-white/80 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 shadow-sm text-left">
+                                <div className="w-10 h-10 rounded-full bg-teal-600 text-white flex items-center justify-center font-black">
+                                    {user.email ? user.email.charAt(0).toUpperCase() : '?'}
+                                </div>
+                                <div className="leading-tight">
+                                    <p className="text-[10px] uppercase tracking-[0.12em] text-slate-500 font-black">Signed in as</p>
+                                    <p className="text-sm font-black text-slate-900 dark:text-white flex items-center gap-2">
+                                        <UserRound className="w-4 h-4 text-teal-600" />
+                                        <span>{user.email || 'Unknown'}</span>
+                                    </p>
+                                    <p className="text-[11px] font-black text-teal-600 uppercase">{roleLabel}</p>
+                                </div>
+                            </div>
+
                             <Link
                                 to={user.role === 'STUDENT' ? "/create-campaign" : "/dashboard"}
                                 className="btn-primary py-2.5 px-5 text-sm rounded-xl font-bold"
