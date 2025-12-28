@@ -1,13 +1,15 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Sun, Moon, Heart, LogOut, UserRound } from 'lucide-react';
+import { useAuth0 } from '@auth0/auth0-react';
 import { useTheme } from '../context/ThemeContext';
-import { useAuth } from '../context/AuthContext';
+import LoginButton from './LoginButton';
+import LogoutButton from './LogoutButton';
 import logo from '../assets/logo.png';
 
 const Navbar = () => {
     const { isDark, toggleTheme } = useTheme();
-    const { user, logout } = useAuth();
+    const { user, isAuthenticated } = useAuth0();
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -35,8 +37,9 @@ const Navbar = () => {
         { name: 'Campaigns', path: '#campaigns', onClick: handleCampaignsClick },
     ];
 
-    const navItems = user ? authNavItems : guestNavItems;
-    const roleLabel = user?.role === 'STUDENT' ? 'Student' : user?.role === 'DONOR' ? 'Donor' : 'Member';
+    const navItems = isAuthenticated ? authNavItems : guestNavItems;
+    const displayName = user?.name || user?.email || 'User';
+    const initial = displayName.charAt(0).toUpperCase();
 
     return (
         <nav className="glass sticky top-0 z-50 py-4 border-b border-slate-200 dark:border-slate-800 shadow-sm">
@@ -90,51 +93,31 @@ const Navbar = () => {
                         {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
                     </button>
 
-                    {user ? (
+                    {isAuthenticated ? (
                         <div className="flex items-center gap-3">
                             <div className="hidden md:flex items-center gap-3 px-3 py-2 rounded-xl bg-white/80 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 shadow-sm text-left">
                                 <div className="w-10 h-10 rounded-full bg-teal-600 text-white flex items-center justify-center font-black">
-                                    {user.email ? user.email.charAt(0).toUpperCase() : '?'}
+                                    {initial || '?'}
                                 </div>
                                 <div className="leading-tight">
                                     <p className="text-[10px] uppercase tracking-[0.12em] text-slate-500 font-black">Signed in as</p>
                                     <p className="text-sm font-black text-slate-900 dark:text-white flex items-center gap-2">
                                         <UserRound className="w-4 h-4 text-teal-600" />
-                                        <span>{user.email || 'Unknown'}</span>
+                                        <span>{displayName}</span>
                                     </p>
-                                    <p className="text-[11px] font-black text-teal-600 uppercase">{roleLabel}</p>
                                 </div>
                             </div>
-
                             <Link
-                                to={user.role === 'STUDENT' ? "/create-campaign" : "/dashboard"}
+                                to="/dashboard"
                                 className="btn-primary py-2.5 px-5 text-sm rounded-xl font-bold"
                             >
-                                {user.role === 'STUDENT' ? (
-                                    <>
-                                        <Heart className="w-4 h-4 fill-current" /> <span>Start Campaign</span>
-                                    </>
-                                ) : (
-                                    <>
-                                        <Heart className="w-4 h-4 fill-current" /> <span>Find Students</span>
-                                    </>
-                                )}
+                                <Heart className="w-4 h-4 fill-current" /> <span>Dashboard</span>
                             </Link>
-                            <button
-                                onClick={() => { logout(); navigate('/'); }}
-                                className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg transition-colors flex items-center gap-2 font-bold"
-                                title="Logout"
-                            >
-                                <LogOut className="w-5 h-5" />
-                                <span className="hidden xl:inline text-xs">EXIT</span>
-                            </button>
+                            <LogoutButton />
                         </div>
                     ) : (
                         <div className="flex items-center gap-4">
-                            <Link to="/login" className="text-sm font-black text-secondary hover:text-teal-600 px-2 transition-colors">Sign In</Link>
-                            <Link to="/register" className="btn-primary py-2.5 px-6 text-sm rounded-xl shadow-lg shadow-teal-500/10">
-                                <span className="font-bold">Get Started</span>
-                            </Link>
+                            <LoginButton />
                         </div>
                     )}
                 </div>

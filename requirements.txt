@@ -7,3 +7,6 @@ passlib[bcrypt]
 python-dotenv
 pydantic
 alembic
+requests
+python-jose
+cryptography
